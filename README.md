@@ -1,4 +1,4 @@
-中文文档:https://github.com/resphinas/shopee_goods_spider/blob/main/README_ZH.md
+[![简体中文 badge](https://img.shields.io/badge/%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87-Simplified%20Chinese-blue)](./README_ZH.md)\
 
 Here's a more polished version of your README file:
 
