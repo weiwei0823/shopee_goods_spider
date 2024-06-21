@@ -27,7 +27,6 @@ import socket
 import ssl
 import gzip
 import time
-import socks
 import urllib.request
 import re
 import config

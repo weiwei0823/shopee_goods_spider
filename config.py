@@ -3,8 +3,8 @@ from get_ip_api import get_ip
 #是否开启随机代理模式 优先级最高
 proxy = False
 #是否开启固定代理模式
-target_flag =True
-target_proxy = "127.0.0.1:2022"
+target_flag = False
+target_proxy = "36.159.192.196:2022"
 target_file_flag = False
 
 # 爬取模式
