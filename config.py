@@ -3,8 +3,8 @@ from get_ip_api import get_ip
 #是否开启随机代理模式 优先级最高
 proxy = False
 #是否开启固定代理模式
-target_flag =False
-target_proxy = "127.0.0.1:33210"
+target_flag =True
+target_proxy = "127.0.0.1:2022"
 target_file_flag = False
 
 # 爬取模式
@@ -20,11 +20,11 @@ spider_type = 1
 max_page_defalt = 2
 
 #设置线程数 推荐数量为37
-thread_num = 1
+thread_num = 20
 
 
 #设置进程数  推荐数量为3
-process_num = 1
+process_num = 3
 
 #获取随机ip代理时用  当前状态  : 弃用
 ip_api_url = "http://api.proxy.ipidea.io/getProxyIp?num=1&return_type=txt&lb=1&sb=0&flow=1&regions=us&protocol=http"
