@@ -17,10 +17,10 @@ spider_type = 1
 #None: 按采集程序智能识别最大页数
 # 数字: 按自定义页数采集 必须大于等于0 小于50 的证书
 # 提示 如最大页数为2 则设置2  实际程序中受到接口参数为 range(0,2) = 0,1
-max_page_defalt = 2
+max_page_defalt = None
 
 #设置线程数 推荐数量为37
-thread_num = 20
+thread_num = 37
 
 
 #设置进程数  推荐数量为3
