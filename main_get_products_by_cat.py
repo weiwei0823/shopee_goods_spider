@@ -15,7 +15,7 @@ history version:
   description : support all platforms by set the config.py or use the super arguments to implent it
   more info please see the readme.file of the root
 
-  capture_api(when blocked by the server pleease update the the param ac_cer_d of cookies) :
+  capture_api(when blocked by the server pleease update the the param ac_cert_d of cookies) :
             api(change the anti_bot_tracking_id from the error our codes report)
                 https://shopee.sg/verify/traffic?anti_bot_tracking_id=51f75c5a-37c3-4eef-86aa-69fb8387b30a&app_key=Search.PC&client_id=&is_initial=true&next=https%3A%2F%2Fshopee.sg%2Fsearch%3Fkeyword%3Dphone&redirect_type=2&scene=crawler_item&should_replace_history=true
 作者：wes
@@ -50,7 +50,7 @@ history version:
 
 
 
-    capture_api（当被服务器阻止时，请更新cookie的参数ac_cer_d）：
+    capture_api（当被服务器阻止时，请更新cookie的参数ac_cert_d）：
 
         api（从错误代码报告中更改anti_bot_tracking_id）
                 https://shopee.sg/verify/traffic?anti_bot_tracking_id=51f75c5a-37c3-4eef-86aa-69fb8387b30a&app_key=Search.PC&client_id=&is_initial=true&next=https%3A%2F%2Fshopee.sg%2Fsearch%3Fkeyword%3Dphone&redirect_type=2&scene=crawler_item&should_replace_history=true
@@ -74,7 +74,7 @@ from tools.normal_function import (
 )
 
 # 定义存储文件的目录
-PRODUCTS_PATH = 'data/products/products_{}/'
+PRODUCTS_PATH = 'data/products/polymerization_products/products_{}/'
 
 
 def shopee_Test(id, m_name, newest):
@@ -391,7 +391,7 @@ if __name__ == '__main__':
     参数优先级:    超参数(argparse) > 配置文件(config.py)
             
     """)
-    time.sleep(5)
+    time.sleep(2)
     # 超参数
     parser = argparse.ArgumentParser()
     # 添加相关超参数  目前建议只使用 --host 和 --check_point 因为其他暂没有过多共享测试  需要修改移步至config.py
@@ -404,7 +404,8 @@ if __name__ == '__main__':
     parser.add_argument('--max_page_defalt', required=False, default=config.max_page_defalt,
                         help="set the max page each category has")
     args = parser.parse_args()
-    platform = args.host
+    # platform = args.host
+    platform = "my"
     checkpoint_flag = args.checkpoint
     lastest_ip = config.get_proxy()
     print("""

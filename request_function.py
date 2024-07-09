@@ -131,7 +131,7 @@ def socket_request_for_shopee_fit_all(api_url_,host, api):
                 continue
                 # print(need.strip())
                 # print(response)
-                return False
+                # return False
             break
         except Exception as file:
 
