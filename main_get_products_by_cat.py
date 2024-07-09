@@ -74,7 +74,7 @@ from tools.normal_function import (
 )
 
 # 定义存储文件的目录
-PRODUCTS_PATH = 'data/polymerization_products/products_{}/'
+PRODUCTS_PATH = 'data/products/products_{}/'
 
 
 def shopee_Test(id, m_name, newest):

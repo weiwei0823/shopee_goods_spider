@@ -27,7 +27,7 @@ from threading import Thread
 from tools import save_tool
 
 
-PRODUCTS_PATH = 'data/products/{}/'
+PRODUCTS_PATH = './data/polymerization_products/products_{}/'
 
 
 def get_log_async(f):
