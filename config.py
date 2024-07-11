@@ -198,10 +198,10 @@ single_product_headers = {
 def get_AC_CERT_D():
 
     try:
-        with open('ac_cert_d.txt', "r", encoding="utf-8") as file:
+        with open('ac_cert_d.json', "r", encoding="utf-8") as file:
             return file.read().strip()
     except:
-        with open('ac_cert_d.txt', "w", encoding="utf-8") as file:
+        with open('ac_cert_d.json', "w", encoding="utf-8") as file:
             return "nothing put in ac_cert_d"
 
 # 所有网络请求时都会用到的方案 待优化: 不管是何种方法 应避免做重复的工作 推荐采用redis 或者 队列

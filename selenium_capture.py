@@ -118,7 +118,7 @@ class CaptchaProcess():
         for i in cookies:
 
             if "AC_CERT_D" == i['name']:
-                with open("ac_cert_d.txt", "w", encoding="utf-8") as file:
+                with open("ac_cert_d.json", "w", encoding="utf-8") as file:
                     file.write(cookies['AC_CERT_D'])
                     print("cookie值已更新,当前最新值为 {}".format(i['value']))
         if not exist_flag:
