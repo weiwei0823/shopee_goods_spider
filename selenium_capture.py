@@ -33,8 +33,7 @@ import time
 # 打开chrome浏览器
 class CaptchaProcess():
     def __init__(self, tracking_id, ):
-        self.captcha_api = "https://shopee.sg/verify/captcha?anti_bot_tracking_id={}&app_key=Search.PC&client_id=1&next=https%3A%2F%2Fshopee.sg%2Fverify%2Ftraffic&redirect_type=2&scene=crawler_item&should_replace_history=true".format(
-            tracking_id)
+        self.captcha_api = "https://my.xiapibuy.com/verify/captcha?anti_bot_tracking_id={}&app_key=Recommendation.PC&client_id=1&mfr=2&mfr_captcha=52e5d613c3f96e6d31f8a51bd4a45a0a&next=https%3A%2F%2Fmy.xiapibuy.com%2Fverify%2Ftraffic&redirect_type=2&scene=crawler_item&should_replace_history=true".format(tracking_id)
         self.driver = webdriver.Chrome()
         self.driver.maximize_window()
         self.driver.implicitly_wait(10)
@@ -184,7 +183,7 @@ class Chaojiying_Client(object):
 
 
 if __name__ == '__main__':
-    captcha = CaptchaProcess("2087ceb998e-cfe5-42ae-8820-b6541994dcea")
+    captcha = CaptchaProcess("VTJGc2RHVmtYMSsrcklFRkowU0NySS9NMytGSmVHblB6cmVNR2NVQzkrdzR3QVI1MlV1WHd6S2hPVUV5a2xPNWM5dUs3YnBmQ2RCRzZ2ZG1vR0R1Qm96ZWVLclJkMGpPSGJXQXEvMk5wMkNodW0zUEtSV001OU5QTktxWWdBazFhSmt5NEpMRVhXcU15alhXOUhzOHkxdzdrMzlCam91bU5MajFCREZzMWhBZGZRanZ4a210TjhhZFdkOHdVenZOSDJJUVR4R3dZaCtvWDNoZC9TMlAvNWE5amI1emY3THEwWWppOWo2VmtWdzRyWm1oUEVDNnZmRDNTWkZVbjlGMw")
     captcha.open_page()
 
     while True:
