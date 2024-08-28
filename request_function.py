@@ -124,7 +124,6 @@ def socket_request_for_shopee_fit_all(api_url_,host, api):
                 print(need)
                 print("被检测到轨迹 -> , 当前ip为 {} ,回传为{}, 建议更换cookie参数".format(15, spider_attack))
                 tracking_id = re.findall('"tracking_id":"(.*?)"', need)[0]
-                print("验证码回传api 为　https://shopee.sg/verify/captcha?anti_bot_tracking_id={}&app_key=Search.PC&client_id=1&next=https%3A%2F%2Fshopee.sg%2Fverify%2Ftraffic&redirect_type=2&scene=crawler_item&should_replace_history=true".format(tracking_id))
                 print(need)
                 time.sleep(10)
                 # input("checking ")
