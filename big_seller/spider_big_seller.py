@@ -1,6 +1,7 @@
 import base64
 import json
 
+import requests
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from cnocr import CnOcr
@@ -16,6 +17,7 @@ def base64_to_img(base64_str):
     return Image.open(BytesIO(img_data))
 
 
+# 验证码登录
 def handleVerifyAndLogin(driver):
     verifyCode_base64 = driver.find_element(By.XPATH, '//img[@class="cursor-pointer"]').get_attribute("src")
     img_data = base64_to_img(verifyCode_base64)
@@ -35,6 +37,7 @@ def handleVerifyAndLogin(driver):
     return error_pop is not None
 
 
+# 获取登录cookie
 def get_bigSeller_cookie():
     # 启动浏览器
     temp_driver = webdriver.Chrome()
@@ -43,7 +46,7 @@ def get_bigSeller_cookie():
     temp_driver.get("https://www.bigseller.com/zh_CN/login.htm")
 
     # 获取页面源代码
-    temp_driver.implicitly_wait(10)
+    temp_driver.implicitly_wait(2)
     # 查找页面的用户名和密码输入框，并输入对应的值
     username_input = temp_driver.find_element(By.XPATH, '//input[@id="el-id-1024-5"]')
 
@@ -62,11 +65,14 @@ def get_bigSeller_cookie():
     cookie_dict = {}
     for cookie in temp_driver.get_cookies():
         cookie_dict[cookie['name']] = cookie['value']
-    with open('ac_cert_d.json', 'w', encoding='utf-8') as f:
+    with open('big_seller.json', 'w', encoding='utf-8') as f:
         f.write(json.dumps(cookie_dict))
     # 关闭浏览器
-    # temp_driver.close()
+    temp_driver.close()
+
+
+# 获取草稿箱
 
 
 if __name__ == '__main__':
-    get_bigSeller_cookie()
+    ###aaa
