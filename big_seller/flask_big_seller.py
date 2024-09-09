@@ -32,7 +32,7 @@ def response_parse(resp_str, is_success=True, need_load=True):
 def before_request():
     # 在请求之前设置g对象的数据
     with open('accountToken.json', 'r', encoding='utf-8') as f:
-        g.cookie_list = json.loads(f.read())
+        g.user_list = json.loads(f.read())
 
 
 # 获取账号列表
@@ -42,8 +42,9 @@ def getBigSellerUserList():
         [
             {
                 "id": item.get("id"),
+                "shopId": item.get("shopId"),
                 "name": item.get("name")
-            } for item in g.cookie_list
+            } for item in g.user_list
         ],
         need_load=False)
     return resultStr
@@ -55,13 +56,65 @@ def getBigSellerDraftBox():
     resultStr = ''
     data = request_parse(request)
     user_id = data.get("userId")
+    bs_status = data.get("bsStatus")
+    shop_id = data.get("shopId")
+    page_no = data.get("pageNo")
+    page_size = data.get("pageSize")
+    inquire_type = data.get("inquireType")
+    search_type = data.get("searchType")
+    search_content = data.get("searchContent")
 
     if user_id:
-        url = "https://www.bigseller.com/api/v1/product/global/shopee/draft.json?bsStatus=1&shopId=&pageNo=1&pageSize=50"
-        current_cookie = next(v['cookie'] for v in g.cookie_list if v['id'] == user_id)
+        url = "https://www.bigseller.com/api/v1/product/global/shopee/draft.json"
+        current_cookie = next(v['cookie'] for v in g.user_list if v['id'] == user_id)
         if current_cookie:
             headers = {"Cookie": current_cookie.strip()}
-            request_res = requests.get(url=url, headers=headers)
+            params = {
+                "bsStatus": bs_status,
+                "shopId": shop_id,
+                "pageNo": page_no,
+                "pageSize": page_size,
+                "inquireType": inquire_type,
+                "searchType": search_type,
+                "searchContent": search_content,
+            }
+            request_res = requests.get(url=url, params=params, headers=headers)
+            resultStr = response_parse(request_res.text)
+        else:
+            resultStr = response_parse("token不存在！！！", is_success=False)
+    else:
+        resultStr = response_parse("用户id不存在！！！", is_success=False)
+    return resultStr
+
+# 获取在线产品列表
+@app.route("/getBigSellerOnLineProduct", methods=["GET", "POST"])
+def getBigSellerOnLineProduct():
+    resultStr = ''
+    data = request_parse(request)
+    user_id = data.get("userId")
+    bs_status = data.get("bsStatus")
+    shop_id = data.get("shopId")
+    page_no = data.get("pageNo")
+    page_size = data.get("pageSize")
+    inquire_type = data.get("inquireType")
+    search_type = data.get("searchType")
+    search_content = data.get("searchContent")
+
+    if user_id:
+        url = "https://www.bigseller.com/api/v1/product/global/shopee/active.json"
+        current_cookie = next(v['cookie'] for v in g.user_list if v['id'] == user_id)
+        if current_cookie:
+            headers = {"Cookie": current_cookie.strip()}
+            params = {
+                "bsStatus": bs_status,
+                "shopId": shop_id,
+                "pageNo": page_no,
+                "pageSize": page_size,
+                "inquireType": inquire_type,
+                "searchType": search_type,
+                "searchContent": search_content,
+            }
+            request_res = requests.get(url=url, params=params, headers=headers)
             resultStr = response_parse(request_res.text)
         else:
             resultStr = response_parse("token不存在！！！", is_success=False)
