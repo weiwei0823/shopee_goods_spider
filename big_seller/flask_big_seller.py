@@ -67,8 +67,11 @@ def getBigSellerDraftBox():
     if user_id:
         url = "https://www.bigseller.com/api/v1/product/global/shopee/draft.json"
         current_cookie = next(v['cookie'] for v in g.user_list if v['id'] == user_id)
+        current_cookie_str = ""
+        for k, v in current_cookie.items():
+            current_cookie_str += "%s=%s; " % (k, v)
         if current_cookie:
-            headers = {"Cookie": current_cookie.strip()}
+            headers = {"Cookie": current_cookie_str}
             params = {
                 "bsStatus": bs_status,
                 "shopId": shop_id,
@@ -85,6 +88,7 @@ def getBigSellerDraftBox():
     else:
         resultStr = response_parse("用户id不存在！！！", is_success=False)
     return resultStr
+
 
 # 获取在线产品列表
 @app.route("/getBigSellerOnLineProduct", methods=["GET", "POST"])
@@ -103,8 +107,11 @@ def getBigSellerOnLineProduct():
     if user_id:
         url = "https://www.bigseller.com/api/v1/product/global/shopee/active.json"
         current_cookie = next(v['cookie'] for v in g.user_list if v['id'] == user_id)
+        current_cookie_str = ""
+        for k, v in current_cookie.items():
+            current_cookie_str += "%s=%s; " % (k, v)
         if current_cookie:
-            headers = {"Cookie": current_cookie.strip()}
+            headers = {"Cookie": current_cookie_str}
             params = {
                 "bsStatus": bs_status,
                 "shopId": shop_id,
@@ -116,6 +123,76 @@ def getBigSellerOnLineProduct():
             }
             request_res = requests.get(url=url, params=params, headers=headers)
             resultStr = response_parse(request_res.text)
+        else:
+            resultStr = response_parse("token不存在！！！", is_success=False)
+    else:
+        resultStr = response_parse("用户id不存在！！！", is_success=False)
+    return resultStr
+
+
+# 获取采集区列表
+@app.route("/getBigSellerCollectList", methods=["GET", "POST"])
+def getBigSellerCollectList():
+    resultStr = ''
+
+    data = request_parse(request)
+    user_id = data.get("userId")
+    claim_status = data.get("claimStatus")
+    crawl_platform = data.get("crawlPlatform")
+    desc = data.get("desc")
+    order_by = data.get("orderBy")
+    page_no = data.get("pageNo")
+    page_size = data.get("pageSize")
+    inquire_type = data.get("inquireType")
+    search_type = data.get("searchType")
+    search_content = data.get("searchContent")
+    site = data.get("site")
+
+    if user_id:
+        url = "https://www.bigseller.com/api/v1/product/crawl/pageList.json"
+        current_cookie = next(v['cookie'] for v in g.user_list if v['id'] == user_id)
+        current_cookie_str = ""
+        for k, v in current_cookie.items():
+            current_cookie_str += "%s=%s; " % (k, v)
+        if current_cookie:
+            headers = {"Cookie": current_cookie.strip()}
+            params = {
+                "claimStatus": claim_status,
+                "crawlPlatform": crawl_platform,
+                "desc": desc,
+                "orderBy": order_by,
+                "site": site,
+                "pageNo": page_no,
+                "pageSize": page_size,
+                "inquireType": inquire_type,
+                "searchType": search_type,
+                "searchContent": search_content,
+            }
+            request_res = requests.post(url=url, params=params, headers=headers)
+            resultStr = response_parse(request_res.text)
+        else:
+            resultStr = response_parse("token不存在！！！", is_success=False)
+    else:
+        resultStr = response_parse("用户id不存在！！！", is_success=False)
+    return resultStr
+
+
+# 获取是否登录
+@app.route("/getBigSellerIsLogin", methods=["GET", "POST"])
+def getBigSellerIsLogin():
+    data = request_parse(request)
+    user_id = data.get("userId")
+    if user_id:
+        url = "https://www.bigseller.com/api/v1/isLogin.json"
+        current_cookie = next(v['cookie'] for v in g.user_list if v['id'] == user_id)
+        current_cookie_str = ""
+        for k, v in current_cookie.items():
+            current_cookie_str += "%s=%s; " % (k, v)
+        if current_cookie:
+            headers = {"Cookie": current_cookie_str}
+            request_res = requests.get(url=url, params={}, headers=headers)
+            resultStr = response_parse(request_res.text)
+            print(resultStr, "ggggggggg")
         else:
             resultStr = response_parse("token不存在！！！", is_success=False)
     else:

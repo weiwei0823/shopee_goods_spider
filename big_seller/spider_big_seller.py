@@ -4,6 +4,7 @@ import json
 import requests
 from selenium import webdriver
 from selenium.webdriver.common.by import By
+from selenium.webdriver.chrome.options import Options
 from cnocr import CnOcr
 import base64
 from PIL import Image
@@ -39,8 +40,11 @@ def handleVerifyAndLogin(driver):
 
 # 获取登录cookie
 def get_bigSeller_cookie():
+    chrome_options = Options()
+    # 设置chrome浏览器无界面模式
+    chrome_options.add_argument('--headless')
     # 启动浏览器
-    temp_driver = webdriver.Chrome()
+    temp_driver = webdriver.Chrome(options=chrome_options)
 
     # 访问要登录的页面
     temp_driver.get("https://www.bigseller.com/zh_CN/login.htm")
@@ -75,4 +79,4 @@ def get_bigSeller_cookie():
 
 
 if __name__ == '__main__':
-    ###aaa
+    get_bigSeller_cookie()
