@@ -3,6 +3,8 @@ import json
 from flask import Flask, g, request
 import requests
 
+from tools.handle_json_none import handle_json_none
+
 app = Flask(__name__)
 
 
@@ -58,6 +60,10 @@ def get_request_params(param_list=None, info_list=None):
     return result_obj
 
 
+def get_error_text():
+    return response_parse("用户id或者token不存在！！！", is_success=False)
+
+
 @app.before_request
 def before_request():
     # 在请求之前设置g对象的数据
@@ -97,12 +103,12 @@ def getBigSellerDraftBox():
     if param_obj["is_success"] is True:
         request_res = requests.get(
             url=url,
-            params=param_obj["params"],
+            data=param_obj["params"],
             headers={"Cookie": param_obj["cookie"]}
         )
         resultStr = response_parse(request_res.text)
     else:
-        resultStr = response_parse("用户id或者token不存在！！！", is_success=False)
+        resultStr = get_error_text()
     return resultStr
 
 
@@ -128,7 +134,7 @@ def getBigSellerOnLineProduct():
         )
         resultStr = response_parse(request_res.text)
     else:
-        resultStr = response_parse("用户id或者token不存在！！！", is_success=False)
+        resultStr = get_error_text()
     return resultStr
 
 
@@ -157,7 +163,7 @@ def getBigSellerCollectList():
         )
         resultStr = response_parse(request_res.text)
     else:
-        resultStr = response_parse("用户id或者token不存在！！！", is_success=False)
+        resultStr = get_error_text()
     return resultStr
 
 
@@ -174,7 +180,7 @@ def getBigSellerIsLogin():
         )
         resultStr = response_parse(request_res.text)
     else:
-        resultStr = response_parse("用户id或者token不存在！！！", is_success=False)
+        resultStr = get_error_text()
     return resultStr
 
 
@@ -189,7 +195,28 @@ def getBigSellerEditDetail():
         )
         resultStr = response_parse(request_res.text)
     else:
-        resultStr = response_parse("用户id或者token不存在！！！", is_success=False)
+        resultStr = get_error_text()
+    return resultStr
+
+
+# 修改详情页
+@app.route("/editBigSellerShopee", methods=["POST"])
+def editBigSellerShopee():
+    url = "https://www.bigseller.com/api/v1/product/global/shopee/edit.json"
+    param_obj = get_request_params([
+        "userId",
+        "editObj"
+    ])
+    if param_obj["is_success"] is True:
+        request_res = requests.post(
+            url=url,
+            data=handle_json_none(param_obj["params"]["editObj"]),
+            headers={"Cookie": param_obj["cookie"]}
+        )
+        print(request_res.text)
+        resultStr = response_parse(request_res.text)
+    else:
+        resultStr = get_error_text()
     return resultStr
 
 
