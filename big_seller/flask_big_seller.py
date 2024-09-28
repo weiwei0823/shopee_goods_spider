@@ -3,6 +3,7 @@ import json
 from flask import Flask, g, request
 import requests
 
+from big_seller.login_big_seller import do_login
 from tools.handle_json_none import handle_json_none
 
 app = Flask(__name__)
@@ -218,6 +219,11 @@ def editBigSellerShopee():
     else:
         resultStr = get_error_text()
     return resultStr
+
+
+@app.route("/doLogin", methods=["GET"])
+def doLogin(id=""):
+    return do_login(id)
 
 
 if __name__ == "__main__":
