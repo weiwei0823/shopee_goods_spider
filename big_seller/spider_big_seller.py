@@ -1,6 +1,7 @@
 import base64
 import json
 
+import ddddocr
 import requests
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -21,9 +22,9 @@ def base64_to_img(base64_str):
 # 验证码登录
 def handleVerifyAndLogin(driver):
     verifyCode_base64 = driver.find_element(By.XPATH, '//img[@class="cursor-pointer"]').get_attribute("src")
-    img_data = base64_to_img(verifyCode_base64)
-    ocr = CnOcr(cand_alphabet="0123456789AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz")
-    verifyCode_result = ocr.ocr(img_data)[0].get("text")
+    # 识别验证码
+    ocr = ddddocr.DdddOcr()
+    verifyCode_result = ocr.classification(base64_to_img(verifyCode_base64))
     print(f"Predicted Chars:{verifyCode_result}")
 
     verifyCode_input = driver.find_element(By.XPATH, '//input[@id="el-id-1024-7"]')
@@ -80,3 +81,4 @@ def get_bigSeller_cookie():
 
 if __name__ == '__main__':
     get_bigSeller_cookie()
+
