@@ -242,7 +242,7 @@ class BigSellerLogin:
             driver.close()
 
     def modify_token(self, muc_token):
-        with open('//big_seller/accountToken.json', 'r', encoding='utf-8') as f:
+        with open('/Users/个人/电商/电商后台/big_seller/accountToken.json', 'r', encoding='utf-8') as f:
             content_obj = json.loads(f.read())
         # 查找并修改目标元素
         found = False
@@ -251,7 +251,7 @@ class BigSellerLogin:
                 element['cookie']["muc_token"] = muc_token  # 修改 cookie 属性
                 found = True
                 break  # 假设 ID 唯一，找到后直接退出循环
-        with open('//big_seller/accountToken.json', 'w', encoding='utf-8') as f:
+        with open('/Users/个人/电商/电商后台/big_seller/accountToken.json', 'w', encoding='utf-8') as f:
             f.write(json.dumps(content_obj, ensure_ascii=False))
         return content_obj
 
