@@ -282,5 +282,5 @@ def do_login(id=""):
 
 
 if __name__ == "__main__":
-    app.run("127.0.0.1", 9980, debug=False)
+    app.run("0.0.0.0", port=9980, debug=False)
     # tes_proxy()
