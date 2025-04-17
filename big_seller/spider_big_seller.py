@@ -1,13 +1,17 @@
-import base64
 import json
+import base64
+import time
 
-import ddddocr
 import requests
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.chrome.service import Service
 from selenium import webdriver
 from selenium.webdriver.common.by import By
-from selenium.webdriver.chrome.options import Options
-from cnocr import CnOcr
-import base64
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.common.exceptions import TimeoutException, WebDriverException, NoSuchElementException
+from functools import wraps
+from selenium.webdriver.support import expected_conditions as EC
+import ddddocr
 from PIL import Image
 from io import BytesIO
 
@@ -43,7 +47,7 @@ def handleVerifyAndLogin(driver):
 def get_bigSeller_cookie():
     chrome_options = Options()
     # 设置chrome浏览器无界面模式
-    chrome_options.add_argument('--headless')
+    # chrome_options.add_argument('--headless')
     # 启动浏览器
     temp_driver = webdriver.Chrome(options=chrome_options)
 
@@ -53,12 +57,12 @@ def get_bigSeller_cookie():
     # 获取页面源代码
     temp_driver.implicitly_wait(2)
     # 查找页面的用户名和密码输入框，并输入对应的值
-    username_input = temp_driver.find_element(By.XPATH, '//input[@id="el-id-1024-5"]')
+    username_input = temp_driver.find_element(By.NAME, 'account')
 
     username_input.clear()
     username_input.send_keys("liudewei0616@gmail.com")
 
-    password_input = temp_driver.find_element(By.XPATH, '//input[@id="el-id-1024-6"]')
+    password_input = temp_driver.find_element(By.NAME, 'password')
     password_input.clear()
     password_input.send_keys("ldw1987.")
 
@@ -76,9 +80,185 @@ def get_bigSeller_cookie():
     temp_driver.close()
 
 
-# 获取草稿箱
+def retry(max_attempts=3, delay=1, exceptions=(WebDriverException,)):
+    def decorator(func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            attempts = 0
+            while attempts < max_attempts:
+                try:
+                    return func(*args, **kwargs)
+                except exceptions as e:
+                    attempts += 1
+                    if attempts == max_attempts:
+                        raise
+                    time.sleep(delay)
+
+        return wrapper
+
+    return decorator
+
+
+def isElementExist(xpath_value, driver):
+    flag = True
+    browser = driver
+    ele = browser.find_elements(by=By.XPATH, value=xpath_value)
+    if len(ele) == 0:
+        flag = False
+        return flag
+    if len(ele) == 1:
+        return flag
+    else:
+        flag = False
+        return flag
+
+
+class BigSellerLogin:
+    def __init__(self):
+        self.timeout = 40
+        self.bigSeller_info = {
+            "username": "liudewei0616@gmail.com",
+            "password": "Qww870823",
+        }
+        self.oper_status = False
+        self.current_window = None
+        self.auth_window_url_str = "signin/oauth/accountchooser"
+
+    @retry(max_attempts=3, delay=2)
+    def safe_find_element(self, by, value, driver, timeout=None):
+        timeout = timeout or self.timeout
+        return WebDriverWait(driver, timeout).until(
+            EC.presence_of_element_located((by, value))
+        )
+
+    @retry(max_attempts=3, delay=2)
+    def safe_click(self, element):
+        element.click()
+
+    @retry(max_attempts=2, delay=3)
+    def safe_send_keys(self, element, text, is_clear=True):
+        if is_clear:
+            element.clear()
+        element.send_keys(text)
+
+    def open_browser(self):
+        chrome_options = Options()
+        # 设置chrome浏览器无界面模式
+        # chrome_options.add_argument('--headless')
+        # 启动浏览器
+        # chrome_options.add_argument('--headless')  # 无界面运行
+        chrome_options.page_load_strategy = "eager"  # eager：等待初始HTML文档完全加载和解析，并放弃css、图像和子框架的加载。
+        chrome_options.add_argument('--disable-gpu')  # 禁止gpu加速
+        chrome_options.add_argument("no-sandbox")  # 取消沙盒模式
+        chrome_options.add_argument("disable-blink-features=AutomationControlled")  # 禁用启用Blink运行时的功能
+        web_driver = webdriver.Chrome(options=chrome_options)
+        # web_driver.set_window_size(400, 200)
+        web_driver.set_page_load_timeout(self.timeout)
+        driver_wait = WebDriverWait(web_driver, self.timeout)
+        return web_driver
+
+    def go_bigSeller(self, driver):
+        print("BigSeller登录：打开BigSeller登录页面")
+        driver.get("https://www.bigseller.com/zh_CN/login.htm")
+        return self.login_bigSeller(driver)
+
+    def login_bigSeller(self, driver):
+        try:
+            login_result = {
+                "result": False,
+                "user_list": []
+            }
+            time.sleep(3)
+            # 输入用户名
+            print("BigSeller登录：输入用户名")
+            login_username_input = self.safe_find_element(By.XPATH, "//input[@name='account']",
+                                                          driver)
+            self.safe_send_keys(login_username_input, self.bigSeller_info["username"])
+            # 输入密码
+            print("BigSeller登录：输入密码")
+            login_password_input = self.safe_find_element(By.XPATH, "//input[@name='password']",
+                                                          driver)
+            self.safe_send_keys(login_password_input, self.bigSeller_info["password"])
+            is_verify_code_error = True
+
+            # 判断验证吗并点击登录
+            def check_verify_code(flag=False):
+                check_xpath = "//p[text()='图形验证码错误']"
+                time.sleep(1)
+                if isElementExist(check_xpath, driver):
+                    flag = True
+                time.sleep(1)
+                if isElementExist(check_xpath, driver):
+                    flag = True
+                time.sleep(1)
+                if isElementExist(check_xpath, driver):
+                    flag = True
+                if "login.htm" not in driver.current_url:
+                    flag = False
+                return flag
+
+            while is_verify_code_error is True:
+                time.sleep(1)
+                print("BigSeller登录：获取验证码图片")
+                # 获取验证码图片
+                login_verify_image_div = self.safe_find_element(By.XPATH, "//img[contains(@class, 'comb-code')]",
+                                                                driver)
+                login_verify_image_base64 = login_verify_image_div.get_attribute("src")
+                print("BigSeller登录：验证码解码")
+                head, context = login_verify_image_base64.split(",")  # 将base64_str以“,”分割为两部分
+                img_data = base64.b64decode(context)  # 解码时只要内容部分
+                login_verify_image = Image.open(BytesIO(img_data))
+                ocr = ddddocr.DdddOcr()
+                verify_code = ocr.classification(login_verify_image)
+                print(f"BigSeller登录：验证码解码结果为{verify_code}")
+                # 输入验证码
+                print(f"BigSeller登录：输入验证码")
+                login_verify_input = self.safe_find_element(By.XPATH, "//input[@name='picVerificationCode']", driver)
+                self.safe_send_keys(login_verify_input, verify_code)
+                # 点击登录按钮
+                print(f"BigSeller登录：点击登录按钮")
+                login_login_button = self.safe_find_element(By.XPATH, "//span[text()='登录']/..",
+                                                            driver)
+                self.safe_click(login_login_button)
+                is_verify_code_error = check_verify_code(is_verify_code_error)
+
+            time.sleep(2)
+            # 取得登录成功后的Cookie
+            cookie_dict = {}
+            for cookie in driver.get_cookies():
+                cookie_dict[cookie['name']] = cookie['value']
+            new_token = cookie_dict["muc_token"]
+            print(f"BigSeller登录：获取到新的token-{new_token}")
+            user_list = self.modify_token(new_token)
+            # 关闭浏览器
+            login_result = {
+                "result": True,
+                "user_list": user_list
+            }
+            driver.close()
+            return login_result
+        except Exception as e:
+            print("获取token报错！！！")
+            driver.close()
+
+    def modify_token(self, muc_token):
+        with open('//big_seller/accountToken.json', 'r', encoding='utf-8') as f:
+            content_obj = json.loads(f.read())
+        # 查找并修改目标元素
+        found = False
+        for element in content_obj:
+            if element['id'] == self.bigSeller_info["username"]:
+                element['cookie']["muc_token"] = muc_token  # 修改 cookie 属性
+                found = True
+                break  # 假设 ID 唯一，找到后直接退出循环
+        with open('//big_seller/accountToken.json', 'w', encoding='utf-8') as f:
+            f.write(json.dumps(content_obj, ensure_ascii=False))
+        return content_obj
 
 
 if __name__ == '__main__':
-    get_bigSeller_cookie()
-
+    # get_bigSeller_cookie()
+    bigSeller = BigSellerLogin()
+    driver = bigSeller.open_browser()
+    result = bigSeller.go_bigSeller(driver)
+    print(result)
