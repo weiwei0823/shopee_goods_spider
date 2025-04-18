@@ -100,8 +100,20 @@ def getBigSellerUserList():
 
 
 # 获取产品列表
+@app.route("/getBigSellerShopList", methods=["GET", "POST"])
+def getBigSellerShopList():
+    param_obj = get_request_params(["userId"])
+    url = "https://www.bigseller.com/api/v1/shop/getPermissionShops.json"
+    if param_obj["is_success"] is True:
+        resultStr = proxy_open(url, method="POST", data={"platform": "shopee"}, headers={"Cookie": param_obj["cookie"]})
+    else:
+        resultStr = get_error_text()
+    return resultStr
+
+
+# 获取产品列表
 @app.route("/getBigSellerList", methods=["GET", "POST"])
-def getBigSellerDraftBox():
+def getBigSellerList():
     param_obj = get_request_params([
         "status",
         "pageNo",
@@ -110,12 +122,13 @@ def getBigSellerDraftBox():
         "searchType",
         "desc",
         "orderBy",
-        "searchContent"
+        "searchContent",
+        "shopId"
     ])
     if param_obj['params']['status'] == 'collect':
         url = "https://www.bigseller.com/api/v1/product/crawl/pageList.json"
     else:
-        url = f'https://www.bigseller.com/api/v1/product/listing/shopee/{param_obj["params"]["status"]}.json?orderBy={param_obj["params"]["orderBy"]}&desc={param_obj["params"]["desc"]}&searchType={param_obj["params"]["searchType"]}&inquireType={param_obj["params"]["inquireType"]}&status={param_obj["params"]["status"]}&pageNo={param_obj["params"]["pageNo"]}&pageSize={param_obj["params"]["pageSize"]}'
+        url = f'https://www.bigseller.com/api/v1/product/listing/shopee/{param_obj["params"]["status"]}.json?orderBy={param_obj["params"]["orderBy"]}&desc={param_obj["params"]["desc"]}&searchType={param_obj["params"]["searchType"]}&inquireType={param_obj["params"]["inquireType"]}&status={param_obj["params"]["status"]}&pageNo={param_obj["params"]["pageNo"]}&pageSize={param_obj["params"]["pageSize"]}&shopId={param_obj["params"]["shopId"]}'
     if param_obj["is_success"] is True:
         resultStr = proxy_open(url, headers={"Cookie": param_obj["cookie"]})
     else:
