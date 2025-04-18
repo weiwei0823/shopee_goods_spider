@@ -142,87 +142,91 @@ class BigSellerLogin:
         element.send_keys(text)
 
     def open_browser(self):
+        response_open_browser = requests.get(
+            url=f"http://127.0.0.1:50325/api/v1/browser/start?user_id={'kwv1u5u'}"
+        ).json()
+        chrome_driver = response_open_browser["data"]["webdriver"]
+        service = Service(executable_path=chrome_driver)
         chrome_options = Options()
-        # 设置chrome浏览器无界面模式
-        # chrome_options.add_argument('--headless')
-        # 启动浏览器
-        # chrome_options.add_argument('--headless')  # 无界面运行
         chrome_options.page_load_strategy = "eager"  # eager：等待初始HTML文档完全加载和解析，并放弃css、图像和子框架的加载。
+        # chrome_options.add_argument('--headless')  # 无界面运行
         chrome_options.add_argument('--disable-gpu')  # 禁止gpu加速
         chrome_options.add_argument("no-sandbox")  # 取消沙盒模式
         chrome_options.add_argument("disable-blink-features=AutomationControlled")  # 禁用启用Blink运行时的功能
-        web_driver = webdriver.Chrome(options=chrome_options)
-        # web_driver.set_window_size(400, 200)
-        web_driver.set_page_load_timeout(self.timeout)
-        driver_wait = WebDriverWait(web_driver, self.timeout)
-        return web_driver
+        chrome_options.add_experimental_option("debuggerAddress", response_open_browser["data"]["ws"]["selenium"])
+        driver = webdriver.Chrome(service=service, options=chrome_options)
+        # driver.set_window_size(400, 200)
+        driver.set_page_load_timeout(self.timeout)
+        driver_wait = WebDriverWait(driver, self.timeout)
+        return driver
 
     def go_bigSeller(self, driver):
         print("BigSeller登录：打开BigSeller登录页面")
         driver.get("https://www.bigseller.com/zh_CN/login.htm")
+        time.sleep(4)
         return self.login_bigSeller(driver)
 
     def login_bigSeller(self, driver):
+        login_result = {
+            "result": False,
+            "user_list": []
+        }
         try:
-            login_result = {
-                "result": False,
-                "user_list": []
-            }
-            time.sleep(3)
-            # 输入用户名
-            print("BigSeller登录：输入用户名")
-            login_username_input = self.safe_find_element(By.XPATH, "//input[@name='account']",
-                                                          driver)
-            self.safe_send_keys(login_username_input, self.bigSeller_info["username"])
-            # 输入密码
-            print("BigSeller登录：输入密码")
-            login_password_input = self.safe_find_element(By.XPATH, "//input[@name='password']",
-                                                          driver)
-            self.safe_send_keys(login_password_input, self.bigSeller_info["password"])
-            is_verify_code_error = True
+            if "login.htm" in driver.current_url:
+                # 输入用户名
+                print("BigSeller登录：输入用户名")
+                login_username_input = self.safe_find_element(By.XPATH, "//input[@name='account']",
+                                                              driver)
+                self.safe_send_keys(login_username_input, self.bigSeller_info["username"])
+                # 输入密码
+                print("BigSeller登录：输入密码")
+                login_password_input = self.safe_find_element(By.XPATH, "//input[@name='password']",
+                                                              driver)
+                self.safe_send_keys(login_password_input, self.bigSeller_info["password"])
+                is_verify_code_error = True
 
-            # 判断验证吗并点击登录
-            def check_verify_code(flag=False):
-                check_xpath = "//p[text()='图形验证码错误']"
-                time.sleep(1)
-                if isElementExist(check_xpath, driver):
-                    flag = True
-                time.sleep(1)
-                if isElementExist(check_xpath, driver):
-                    flag = True
-                time.sleep(1)
-                if isElementExist(check_xpath, driver):
-                    flag = True
-                if "login.htm" not in driver.current_url:
-                    flag = False
-                return flag
+                # 判断验证吗并点击登录
+                def check_verify_code(flag=False):
+                    check_xpath = "//p[text()='图形验证码错误']"
+                    time.sleep(1)
+                    if isElementExist(check_xpath, driver):
+                        flag = True
+                    time.sleep(1)
+                    if isElementExist(check_xpath, driver):
+                        flag = True
+                    time.sleep(1)
+                    if isElementExist(check_xpath, driver):
+                        flag = True
+                    if "login.htm" not in driver.current_url:
+                        flag = False
+                    return flag
 
-            while is_verify_code_error is True:
-                time.sleep(1)
-                print("BigSeller登录：获取验证码图片")
-                # 获取验证码图片
-                login_verify_image_div = self.safe_find_element(By.XPATH, "//img[contains(@class, 'comb-code')]",
+                while is_verify_code_error is True:
+                    time.sleep(1)
+                    print("BigSeller登录：获取验证码图片")
+                    # 获取验证码图片
+                    login_verify_image_div = self.safe_find_element(By.XPATH, "//img[contains(@class, 'comb-code')]",
+                                                                    driver)
+                    login_verify_image_base64 = login_verify_image_div.get_attribute("src")
+                    print("BigSeller登录：验证码解码")
+                    head, context = login_verify_image_base64.split(",")  # 将base64_str以“,”分割为两部分
+                    img_data = base64.b64decode(context)  # 解码时只要内容部分
+                    login_verify_image = Image.open(BytesIO(img_data))
+                    ocr = ddddocr.DdddOcr()
+                    verify_code = ocr.classification(login_verify_image)
+                    print(f"BigSeller登录：验证码解码结果为{verify_code}")
+                    # 输入验证码
+                    print(f"BigSeller登录：输入验证码")
+                    login_verify_input = self.safe_find_element(By.XPATH, "//input[@name='picVerificationCode']", driver)
+                    self.safe_send_keys(login_verify_input, verify_code)
+                    # 点击登录按钮
+                    print(f"BigSeller登录：点击登录按钮")
+                    login_login_button = self.safe_find_element(By.XPATH, "//span[text()='登录']/..",
                                                                 driver)
-                login_verify_image_base64 = login_verify_image_div.get_attribute("src")
-                print("BigSeller登录：验证码解码")
-                head, context = login_verify_image_base64.split(",")  # 将base64_str以“,”分割为两部分
-                img_data = base64.b64decode(context)  # 解码时只要内容部分
-                login_verify_image = Image.open(BytesIO(img_data))
-                ocr = ddddocr.DdddOcr()
-                verify_code = ocr.classification(login_verify_image)
-                print(f"BigSeller登录：验证码解码结果为{verify_code}")
-                # 输入验证码
-                print(f"BigSeller登录：输入验证码")
-                login_verify_input = self.safe_find_element(By.XPATH, "//input[@name='picVerificationCode']", driver)
-                self.safe_send_keys(login_verify_input, verify_code)
-                # 点击登录按钮
-                print(f"BigSeller登录：点击登录按钮")
-                login_login_button = self.safe_find_element(By.XPATH, "//span[text()='登录']/..",
-                                                            driver)
-                self.safe_click(login_login_button)
-                is_verify_code_error = check_verify_code(is_verify_code_error)
+                    self.safe_click(login_login_button)
+                    is_verify_code_error = check_verify_code(is_verify_code_error)
 
-            time.sleep(2)
+                time.sleep(2)
             # 取得登录成功后的Cookie
             cookie_dict = {}
             for cookie in driver.get_cookies():
