@@ -160,6 +160,11 @@ class BigSellerLogin:
         driver_wait = WebDriverWait(driver, self.timeout)
         return driver
 
+    def close_browser(self):
+        response_close_browser = requests.get(
+            url=f"http://127.0.0.1:50325/api/v1/browser/stop?user_id={'kwv1u5u'}",
+        ).json()
+
     def go_bigSeller(self, driver):
         print("BigSeller登录：打开BigSeller登录页面")
         driver.get("https://www.bigseller.com/zh_CN/login.htm")
@@ -217,7 +222,8 @@ class BigSellerLogin:
                     print(f"BigSeller登录：验证码解码结果为{verify_code}")
                     # 输入验证码
                     print(f"BigSeller登录：输入验证码")
-                    login_verify_input = self.safe_find_element(By.XPATH, "//input[@name='picVerificationCode']", driver)
+                    login_verify_input = self.safe_find_element(By.XPATH, "//input[@name='picVerificationCode']",
+                                                                driver)
                     self.safe_send_keys(login_verify_input, verify_code)
                     # 点击登录按钮
                     print(f"BigSeller登录：点击登录按钮")
@@ -239,7 +245,7 @@ class BigSellerLogin:
                 "result": True,
                 "user_list": user_list
             }
-            driver.close()
+            self.close_browser()
             return login_result
         except Exception as e:
             print("获取token报错！！！")
