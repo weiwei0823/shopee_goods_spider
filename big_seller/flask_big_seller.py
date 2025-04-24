@@ -78,7 +78,7 @@ def get_error_text():
 @app.before_request
 def before_request():
     # 在请求之前设置g对象的数据
-    with open('/Users/个人/电商/电商后台/big_seller/accountToken.json', 'r', encoding='utf-8') as f:
+    with open("D:\开发代码\电商后台\big_seller\accountToken.json", 'r', encoding='utf-8') as f:
         g.user_list = json.loads(f.read())
 
 
